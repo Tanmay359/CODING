@@ -1,12 +1,792 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>HealthTrace360 - Smart Health Records</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50px, -50px); }
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 25px 0;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+
+        nav a {
+            margin-left: 40px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Page Container */
+        .page {
+            display: none;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Home Page */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            padding: 100px 0;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 80px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            line-height: 1.1;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 300;
+            opacity: 0.95;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 18px 50px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .cta-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-secondary:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-5px);
+        }
+
+        /* Content Pages */
+        .content-page {
+            padding: 120px 0;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 80px;
+            color: white;
+        }
+
+        .page-title {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .page-subtitle {
+            font-size: 22px;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 30px;
+            padding: 60px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            padding: 50px;
+            border-radius: 30px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: #667eea;
+            box-shadow: 0 30px 60px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 70px;
+            margin-bottom: 30px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .feature-card:hover .feature-title {
+            color: white;
+        }
+
+        .feature-description {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .feature-card:hover .feature-description {
+            color: rgba(255,255,255,0.95);
+        }
+
+        /* Benefits List */
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            border-left: 5px solid #f093fb;
+        }
+
+        .benefit-item:hover {
+            transform: translateX(10px) scale(1.03);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .benefit-item h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .benefit-item p {
+            font-size: 17px;
+            opacity: 0.95;
+            line-height: 1.7;
+        }
+
+        /* Applications Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .app-card {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: all 0.4s;
+            text-align: center;
+            border: 2px solid #f0f0f0;
+        }
+
+        .app-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+        }
+
+        .app-icon {
+            font-size: 60px;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .app-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+        }
+
+        .team-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-card:hover::before {
+            opacity: 1;
+        }
+
+        .team-avatar {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.5s;
+        }
+
+        .team-card:hover .team-avatar {
+            transform: rotate(360deg) scale(1.1);
+            border-color: white;
+        }
+
+        .team-name {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .team-role {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Contact Section */
+        .contact-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 60px;
+            border-radius: 30px;
+            margin-bottom: 40px;
+        }
+
+        .contact-info h2 {
+            font-size: 42px;
+            margin-bottom: 30px;
+        }
+
+        .contact-info p {
+            font-size: 20px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 48px;
+            }
+            
+            .page-title {
+                font-size: 42px;
+            }
+            
+            .container {
+                padding: 0 20px;
+            }
+            
+            .content-section {
+                padding: 40px 30px;
+            }
+            
+            nav a {
+                margin-left: 20px;
+                font-size: 14px;
+            }
+            
+            .features-grid,
+            .app-grid,
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, laudantium.
-    
+    <div class="bg-animation"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="showPage('home')">HealthTrace360</div>
+                <nav>
+                    <a onclick="showPage('home')">Home</a>
+                    <a onclick="showPage('features')">Features</a>
+                    <a onclick="showPage('benefits')">Benefits</a>
+                    <a onclick="showPage('solutions')">Solutions</a>
+                    <a onclick="showPage('team')">Team</a>
+                    <a onclick="showPage('contact')">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOME PAGE -->
+    <div id="home" class="page active">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Your Health,<br>One Secure Record</h1>
+                    <p class="hero-subtitle">Revolutionary Digital Health Record Management</p>
+                    <p class="hero-description">
+                        Experience the future of healthcare with secure, unified, and accessible medical records. Your complete health history, always at your fingertips.
+                    </p>
+                    <div class="cta-buttons">
+                        <a onclick="showPage('features')" class="cta-button cta-primary">Discover More</a>
+                        <a onclick="showPage('contact')" class="cta-button cta-secondary">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- FEATURES PAGE -->
+    <div id="features" class="page">
+        <div class="content-page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Powerful Features</h1>
+                    <p class="page-subtitle">Cutting-edge technology designed for your health</p>
+                </div>
+                <div class="content-section">
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <span class="feature-icon">🔐</span>
+                            <h3 class="feature-title">Unbreakable Security</h3>
+                            <p class="feature-description">Military-grade encryption ensures your medical data remains private and protected from unauthorized access.</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🌐</span>
+                            <h3 class="feature-title">Universal Access</h3>
+                            <p class="feature-description">Access your complete medical history anytime, anywhere. Your health records travel with you.</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">👤</span>
+                            <h3 class="feature-title">Complete Control</h3>
+                            <p class="feature-description">You decide who sees your data. Grant and revoke access with a single click.</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">📊</span>
+                            <h3 class="feature-title">Lifelong Records</h3>
+                            <p class="feature-description">From birth to present, maintain your entire medical journey in one unified platform.</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">⚡</span>
+                            <h3 class="feature-title">Instant Sharing</h3>
+                            <p class="feature-description">Share verified medical records with healthcare providers instantly, enabling faster diagnoses.</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🔄</span>
+                            <h3 class="feature-title">Seamless Integration</h3>
+                            <p class="feature-description">Works with existing hospital systems and integrates with government health initiatives.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BENEFITS PAGE -->
+    <div id="benefits" class="page">
+        <div class="content-page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Game-Changing Benefits</h1>
+                    <p class="page-subtitle">Solving healthcare's biggest challenges</p>
+                </div>
+                <div class="content-section">
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <h3>✓ End Data Fragmentation</h3>
+                            <p>No more scattered records across different hospitals and clinics. Everything in one place.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h3>✓ Prevent Data Loss</h3>
+                            <p>Permanent, tamper-proof storage of all your medical information ensures nothing is ever lost.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h3>✓ Enhanced Privacy</h3>
+                            <p>Consent-based access ensures only authorized parties can view your sensitive data.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h3>✓ Better Care Quality</h3>
+                            <p>Doctors make informed decisions with complete medical history at their fingertips.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h3>✓ Time Savings</h3>
+                            <p>No more repeating tests or filling out endless forms at every new facility.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h3>✓ Cost Reduction</h3>
+                            <p>Eliminate duplicate tests and streamline administrative processes to save money.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOLUTIONS PAGE -->
+    <div id="solutions" class="page">
+        <div class="content-page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Built For Everyone</h1>
+                    <p class="page-subtitle">Comprehensive solutions for the entire healthcare ecosystem</p>
+                </div>
+                <div class="content-section">
+                    <div class="app-grid">
+                        <div class="app-card">
+                            <span class="app-icon">🏥</span>
+                            <h3 class="app-title">Hospitals & Clinics</h3>
+                            <p class="app-description">Instant access to verified patient history for coordinated care and better outcomes</p>
+                        </div>
+                        <div class="app-card">
+                            <span class="app-icon">👨‍⚕️</span>
+                            <h3 class="app-title">Healthcare Providers</h3>
+                            <p class="app-description">Complete patient visibility enables accurate diagnoses and personalized treatment plans</p>
+                        </div>
+                        <div class="app-card">
+                            <span class="app-icon">💚</span>
+                            <h3 class="app-title">Patients</h3>
+                            <p class="app-description">Your lifelong medical record accessible anywhere, empowering better health decisions</p>
+                        </div>
+                        <div class="app-card">
+                            <span class="app-icon">💼</span>
+                            <h3 class="app-title">Insurance Providers</h3>
+                            <p class="app-description">Streamlined claim verification with authentic, tamper-proof medical records</p>
+                        </div>
+                        <div class="app-card">
+                            <span class="app-icon">🏛️</span>
+                            <h3 class="app-title">Government Health</h3>
+                            <p class="app-description">Secure integration with national health initiatives and digital health missions</p>
+                        </div>
+                        <div class="app-card">
+                            <span class="app-icon">🔬</span>
+                            <h3 class="app-title">Research Institutes</h3>
+                            <p class="app-description">Anonymized data access for breakthrough medical research and analytics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEAM PAGE -->
+    <div id="team" class="page">
+        <div class="content-page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Meet Our Team</h1>
+                    <p class="page-subtitle">The innovators behind HealthTrace360</p>
+                </div>
+                <div class="content-section">
+                    <div class="team-grid">
+                        <div class="team-card">
+                            <div class="team-avatar">👨‍💻</div>
+                            <h3 class="team-name">Tanmay</h3>
+                            <p class="team-role">Developer</p>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-avatar">👨‍💻</div>
+                            <h3 class="team-name">Uday</h3>
+                            <p class="team-role">Developer</p>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-avatar">👨‍💻</div>
+                            <h3 class="team-name">Tarun</h3>
+                            <p class="team-role">Developer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTACT PAGE -->
+    <div id="contact" class="page">
+        <div class="content-page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Get In Touch</h1>
+                    <p class="page-subtitle">Ready to revolutionize healthcare?</p>
+                </div>
+                <div class="content-section">
+                    <div class="contact-content">
+                        <div class="contact-info">
+                            <h2>HealthTrace360</h2>
+                            <p>Revolutionizing healthcare through secure, accessible, and patient-controlled digital health records.</p>
+                            <br><br>
+                            <p style="font-size: 18px;">Join us in transforming the future of healthcare management.</p>
+                            <div style="margin-top: 40px;">
+                                <a onclick="showPage('home')" class="cta-button cta-primary" style="margin: 10px;">Back to Home</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Show selected page
+            const selectedPage = document.getElementById(pageId);
+            if (selectedPage) {
+                selectedPage.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .app-card, .benefit-item, .team-card').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
